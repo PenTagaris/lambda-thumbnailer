@@ -40,7 +40,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/ec2-user/shrink_venv"
+VIRTUAL_ENV="/home/ec2-user/Code/lambda-thumbnailer"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
