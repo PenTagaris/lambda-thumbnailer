@@ -8,10 +8,15 @@ import PIL.Image
      
 s3_client = boto3.client('s3')
      
-def resize_image(image_path, resized_path):
+def resize_image(image_path, resized_path, size):
     with Image.open(image_path) as image:
-        image.thumbnail(tuple(x / 4 for x in image.size))
-        image.save(resized_path)
+        resized_path = ImageOps.fit(
+            image,
+            (size, size),
+            Image.ANTIALIAS
+        )
+        #image.thumbnail(tuple(x / 4 for x in image.size))
+        #image.save(resized_path)
      
 def handler(event, context):
     for record in event['Records']:
@@ -29,5 +34,5 @@ def handler(event, context):
         #}
         #s3.meta.client.copy(copy_source, bucket, 'hi_res/{}'.format(download_key)) 
         s3_client.download_file(bucket, key, download_path)
-        resize_image(download_path, upload_path)
+        resize_image(download_path, upload_path, 1024)
         s3_client.upload_file(upload_path, '{}'.format(bucket), 'images/thumbs/{}'.format(download_key.replace('__','/')))
