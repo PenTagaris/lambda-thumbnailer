@@ -10,8 +10,9 @@ s3_client = boto3.client('s3')
 def resize_image(image_path, resized_path, new_size):
     with Image.open(image_path) as image:
         dimg = ImageOps.fit(image,
-            size=(new_size, new_size),
-            centering=(0.5, 0.5))
+            size=(new_size, (new_size*.75)),
+            centering=(0.5, 0.5),
+            method=Image.ANTIALIAS)
         dimg.save(resized_path)
 
 def handler(event, context):
@@ -30,6 +31,6 @@ def handler(event, context):
         #}
         #s3.meta.client.copy(copy_source, bucket, 'hi_res/{}'.format(download_key)) 
         s3_client.download_file(bucket, key, download_path)
-        for i in [240, 480, 960]:
+        for i in [160, 320, 480, 640, 800]:
             resize_image(download_path, upload_path, i)
             s3_client.upload_file(upload_path, '{}'.format(bucket), 'images/{}/{}'.format(i, download_key.replace('__','/')))
