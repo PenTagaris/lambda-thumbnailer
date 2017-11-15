@@ -8,7 +8,8 @@ from PIL import Image, ImageOps
 s3_client = boto3.client('s3')
      
 def thumbnail_image(image, resized_path, width):
-        image.thumbnail(tuple(x / 4 for x in image.size))
+        divisor = (image.width // width)
+        image.thumbnail(tuple(x // divisor for x in image.size))
         image.save(resized_path)
 
 def crop_image (image, resized_path):
@@ -30,8 +31,8 @@ def handler(event, context):
             #Is the W:H ratio > 4:3? If so, it's a panorama and we should crop
             if ((image.width / image.height) > (4/3)):
                     crop_image (image, download_path)
-            #We want to have widths of approximately 200, 400 and 800 afterwards
-            for width in [200, 400, 800]:
+            #We want to have widths of approximately 200, 400, 600 and 800
+            for width in [200, 400, 600, 800]:
                 thumbnail_image(image, upload_path, width)
                 s3_client.upload_file(upload_path, 
                     '{}'.format(bucket), 
