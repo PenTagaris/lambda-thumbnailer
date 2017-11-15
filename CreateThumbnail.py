@@ -7,9 +7,6 @@ from PIL import Image, ImageOps
      
 s3_client = boto3.client('s3')
 
-def make_four_three(image, width):
-    return
-
 def thumbnail_image(image, resized_path, width):
     divisor = (image.width // width)
     image.thumbnail(tuple(x / divisor for x in image.size))
