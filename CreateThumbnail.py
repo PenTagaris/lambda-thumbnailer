@@ -6,14 +6,14 @@ import uuid
 from PIL import Image, ImageOps
      
 s3_client = boto3.client('s3')
-     
-def thumbnail_image(image, resized_path, width):
-        divisor = (image.width // width)
-        image.thumbnail(tuple(x / divisor for x in image.size))
-        image.save(resized_path)
 
-def crop_image (image, resized_path):
-        return
+def make_four_three(image, width):
+    return
+
+def thumbnail_image(image, resized_path, width):
+    divisor = (image.width // width)
+    image.thumbnail(tuple(x / divisor for x in image.size))
+    image.save(resized_path)
             
 def handler(event, context):
     for record in event['Records']:
@@ -27,15 +27,15 @@ def handler(event, context):
         s3_client.download_file(bucket, key, download_path)
         
         #work on the image
+        new_width = 700
         with Image.open(download_path) as image:
             #Is the W:H ratio > 4:3? If so, it's a panorama and we should crop
-            #if ((image.width / image.height) > (4/3)):
-            #       crop_image (image, download_path)
-            #We want to have widths of approximately 200, 400, 600 and 800
-            for width in [300, 600, 900]:
-                thumbnail_image(image.copy(), upload_path, width)
-                s3_client.upload_file(upload_path, 
-                    '{}'.format(bucket), 
-                    'images/{}/{}'.format(width, download_key.replace('__','/'))
-                )
-        
+            if ((image.width / image.height) > (4/3)):
+                pan_height = image.height
+                pan_width = (image.height//0.75)
+                image = ImageOps.fit(image, (pan_width, pan_height))
+
+            thumbnail_image(image.copy(), upload_path, new_width)
+            s3_client.upload_file(upload_path, 
+                '{}'.format(bucket), 
+                'images/thumbs/{}'.format(download_key.replace('__','/')))
