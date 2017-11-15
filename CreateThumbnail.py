@@ -3,20 +3,16 @@ import boto3
 import os
 import sys
 import uuid
-from PIL import Image, ImageOps
+from PIL import Image
+import PIL.Image
      
 s3_client = boto3.client('s3')
      
-def resize_image(image_path, resized_path, width, height):
+def resize_image(image_path, resized_path):
     with Image.open(image_path) as image:
-        dimg = ImageOps.fit(
-            image,
-            (width, height),
-            centering=(0.5, 0.5),
-            method=Image.ANTIALIAS
-        )
-        dimg.save(resized_path)
-
+        image.thumbnail(tuple(x / 4 for x in image.size))
+        image.save(resized_path)
+     
 def handler(event, context):
     for record in event['Records']:
         bucket = record['s3']['bucket']['name']
@@ -33,8 +29,5 @@ def handler(event, context):
         #}
         #s3.meta.client.copy(copy_source, bucket, 'hi_res/{}'.format(download_key)) 
         s3_client.download_file(bucket, key, download_path)
-        for i in [160, 320, 480, 640, 800]:
-            width=i
-            height=((i*3)//4)
-            resize_image(download_path, upload_path, width, height)
-            s3_client.upload_file(upload_path, '{}'.format(bucket), 'images/{}/{}'.format(i, download_key.replace('__','/')))
+        resize_image(download_path, upload_path)
+        s3_client.upload_file(upload_path, '{}'.format(bucket), 'images/thumbs/{}'.format(download_key.replace('__','/')))
