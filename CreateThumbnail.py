@@ -26,12 +26,13 @@ def handler(event, context):
         #work on the image
         new_width = 1000
         with Image.open(download_path) as image:
+            
             #Is the W:H ratio > 4:3? If so, it's a panorama and we should crop
             if ((image.width / image.height) > (4/3)):
                 pan_height = image.height
-                pan_width = (image.height//0.75)
+                pan_width = (image.height*2)
                 image = ImageOps.fit(image, (pan_width, pan_height))
-
+            
             thumbnail_image(image.copy(), upload_path, new_width)
             s3_client.upload_file(upload_path, 
                 '{}'.format(bucket), 
