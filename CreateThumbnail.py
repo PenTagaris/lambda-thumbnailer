@@ -10,7 +10,7 @@ s3_client = boto3.client('s3')
 def thumbnail_image(image, resized_path, width):
     divisor = (image.width // width)
     image.thumbnail(tuple(x / divisor for x in image.size))
-    image.save(resized_path)
+    image.save(resized_path, progressive=True, optimize=True, quality=50)
             
 def handler(event, context):
     for record in event['Records']:
