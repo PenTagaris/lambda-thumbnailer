@@ -24,7 +24,7 @@ def handler(event, context):
         s3_client.download_file(bucket, key, download_path)
         
         #work on the image
-        new_width = 700
+        new_width = 1000
         with Image.open(download_path) as image:
             #Is the W:H ratio > 4:3? If so, it's a panorama and we should crop
             if ((image.width / image.height) > (4/3)):
